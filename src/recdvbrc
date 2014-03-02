@@ -1,15 +1,47 @@
+#
+# recdvb config file.
+# 
+# [general] section
+#
+# - b25plugin
+#   b25plugin name. Use gst-inspect to find plugin.
+#   Default is 'identity'. (nothing to do)
+
 [general]
-b25plugin = identity ; b25plugin name. Use gst-inspect to find plugin.
-                     ; Default is 'identity'. (nothing to do)
+b25plugin = identity
+
+
+# [b25plugin] section
+#
+# Configure options for b25plugin (which configured in general section).
+#
+# - [keys...]
+# Every key in this section is used as b25plugin's property name,
+# and each value is used as property value.
+# (same meaning  as 'gst-launch' command's case)
+# <round>, <strip> and <emm> are replace with
+# command line argument.
 
 [b25plugin]
-round = <round>      ; Options for b25plugin.
-strip = <strip>      ; <round>, <strip> and <emm> are replace with
-emm = <emm>          ; command line argument.
+round = <round>
+strip = <strip>
+emm = <emm>
+
+
+# [ch] section
+#
+# Channel definition.
+# Group name for channel definition must be "ch" and
+# subsequent numeric numbers.
+#
+# - frequence
+#   Channel freqency.
+# - name
+#   Displayable name.
 
 [ch13]
-frequency=473142857  ; frequence
-name=ch13            ; displayable name
+frequency=473142857
+name=ch13
 
 
 [ch14]
