@@ -1,1 +1,4 @@
-Nothing much yet.
+recdvb 1.0.0
+============
+ * Initial version.
+ * Implement recpt1 compatible feature exclude stream splitting.

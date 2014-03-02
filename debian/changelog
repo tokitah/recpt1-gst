@@ -1,3 +1,9 @@
+recdvb (1.0.1-1) saucy; urgency=low
+
+  * Initial release ppa package.
+
+ -- TOKITA Hiroshi <tokita.hiroshi@gmail.com>  Sun, 02 Mar 2014 05:21:34 -0800
+
 recdvb (1.0.0-1) saucy; urgency=low
 
   * Initial release (Closes: #99999999)
