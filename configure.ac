@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([recdvb],[1.0.0],[tokita.hiroshi@gmail.com])
+AC_INIT([recdvb],[1.0.1],[tokita.hiroshi@gmail.com])
 AC_CONFIG_SRCDIR([config.h.in],[src/Makefile.am])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -11,7 +11,7 @@ AC_CONFIG_MACRO_DIR([m4])
 GST_REQUIRED=1.0.0
 
 # required version of automake
-AM_INIT_AUTOMAKE([1.13])
+AM_INIT_AUTOMAKE([foreign])
 
 # enable mainainer mode by default
 AM_MAINTAINER_MODE([enable])
