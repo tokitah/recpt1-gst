@@ -1,0 +1,143 @@
+'\" t
+.\"     Title: RECDVB
+.\"    Author: TOKITA Hiroshi <tokita.hiroshi@gmail.com>
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: 03/02/2014
+.\"    Manual: recdvb User Manual
+.\"    Source: recdvb
+.\"  Language: English
+.\"
+.TH "RECDVB" "1" "03/02/2014" "recdvb" "recdvb User Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+recdvb \- Command line tool for DVB recording\&.
+.SH "SYNOPSIS"
+.HP \w'\fBrecdvb\fR\ 'u
+\fBrecdvb\fR [\fB\fIoptions\&.\&.\&.\fR\fR] \fIchannel\fR \fIrectime\fR \fIdestfile\fR
+.HP \w'\fBrecdvb\fR\ 'u
+\fBrecdvb\fR {\fB\-u\fR | \fB\-\-udp\fR} \fIchannel\fR \fIrectime\fR [\fIdestfile\fR]
+.HP \w'\fBrecdvb\fR\ 'u
+\fBrecdvb\fR [{\fB\-h\fR\ |\ \fB\-\-help\fR} | {\fB\-v\fR\ |\ \fB\-\-version\fR} | {\fB\-l\fR\ |\ \fB\-\-list\fR}]
+.SH "DESCRIPTION"
+.PP
+\fBrecdvb\fR
+is command line tool for DVB recording\&.
+\fBrecdvb\fR
+uses GStreamer backend, it work with Linux\-DVB subsystem\&. The most important purpose of this tool it is to provide an alternative method of the functions implemented by a set of pt1\-chardev driver and recpt1\&. Therefore,
+\fBrecdvb\fR
+has almost compatible with recpt1\&.
+.SH "OPTIONS"
+.PP
+\fB\-b\fR, \fB\-\-b25\fR
+.RS 4
+Decrypt using BCAS card\&.
+\fINEED PLUGIN\fR
+.RE
+.PP
+\fB\-r \fR\fB\fIN\fR\fR, \fB\-\-round=\fR\fB\fIN\fR\fR
+.RS 4
+Specify round number\&.
+.RE
+.PP
+\fB\-s\fR, \fB\-\-strip\fR
+.RS 4
+Strip null stream\&.
+.RE
+.PP
+\fB\-e\fR, \fB\-\-EMM\fR
+.RS 4
+Instruct EMM operation\&.
+.RE
+.PP
+\fB\-u\fR, \fB\-\-udp\fR
+.RS 4
+Turn on udp broadcasting\&.
+.RE
+.PP
+\fB\-a \fR\fB\fIaddr\fR\fR, \fB\-\-addr=\fR\fB\fIaddr\fR\fR
+.RS 4
+Hostname or address to connect\&.
+.RE
+.PP
+\fB\-p \fR\fB\fIport\fR\fR, \fB\-\-port=\fR\fB\fIport\fR\fR
+.RS 4
+Port number to connect\&.
+.RE
+.PP
+\fB\-d \fR\fB\fIdevice\fR\fR, \fB\-\-device=\fR\fB\fIdevice\fR\fR
+.RS 4
+Specify devicefile to use\&.
+.RE
+.PP
+\fB\-l \fR\fB\fIvoltage\fR\fR, \fB\-\-lnb=\fR\fB\fIvoltage\fR\fR
+.RS 4
+Specify LNB voltage\&.
+.RE
+.PP
+\fB\-s \fR\fB\fISIDs\fR\fR, \fB\-\-sid=\fR\fB\fISIDs\fR\fR
+.RS 4
+Specify SID number in CSV format (101,102,\&.\&.\&.)\&.
+\fINOT IMPLEMENTED YET\&.\fR
+.RE
+.PP
+\fB\-h\fR, \fB\-\-help\fR
+.RS 4
+Show summary of options\&.
+.RE
+.PP
+\fB\-v\fR, \fB\-\-version\fR
+.RS 4
+Show version of program\&.
+.RE
+.PP
+\fB\-l\fR, \fB\-\-list\fR
+.RS 4
+Show defined channels\&.
+.RE
+.SH "FILES"
+.PP
+/etc/recdvbrc
+.RS 4
+The system\-wide configuration file\&.
+.RE
+.PP
+${HOME}/\&.recdvbrc
+.RS 4
+The per\-user configuration file\&.
+.RE
+.SH "BUGS"
+.PP
+The program is currently not fully compatible with recpt1\&.
+.PP
+\fILNB \fR
+LNB cannot be zero\&.
+.PP
+\fIStreamID\fR
+Not yet implemented stream splitting feature\&.
+.SH "AUTHOR"
+.PP
+\fBTOKITA Hiroshi\fR <\&tokita\&.hiroshi@gmail\&.com\&>
+.RS 4
+.RE
+.SH "COPYRIGHT"
+.br
+Copyright \(co 2014 TOKITA Hiroshi
+.br
