@@ -393,12 +393,21 @@ GstElement* recdvb_append_udpsink(struct configs* conf, GstElement* pipeline, Gs
 
 GstElement* recdvb_append_filesink(struct configs* conf, GstElement* pipeline, GstElement* prev)
 {
+  GstElement *filesink = NULL;
   if(!conf->destfile) {
     return prev;
   }
-  GstElement *filesink = gst_element_factory_make ("filesink", "filesink");
-  g_object_set (G_OBJECT (filesink), "location", conf->destfile, NULL);
-  GST_DEBUG_OBJECT(filesink, "location=%s", conf->destfile);
+  else if( strncmp(conf->destfile, "-", 1) == 0) {
+    filesink = gst_element_factory_make ("fdsink",  "fdsink");
+    g_object_set (G_OBJECT (filesink), "fd", 1, NULL); //to stdout
+    GST_DEBUG_OBJECT(filesink, "fd=1");
+  }
+  else {
+    filesink = gst_element_factory_make ("filesink",  "filesink");
+    g_object_set (G_OBJECT (filesink), "location", conf->destfile, NULL);
+    GST_DEBUG_OBJECT(filesink, "location=%s", conf->destfile);
+  }
+
   gst_bin_add(GST_BIN (pipeline), filesink);
   if(prev != NULL) gst_element_link(prev, filesink);
   GST_INFO_OBJECT(prev, "link from %p", prev);
