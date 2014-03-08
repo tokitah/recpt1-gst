@@ -11,7 +11,12 @@
 #define SYSCONFFILE SYSCONFDIR "/" CONFFILENAME
 
 #define DVB_DEV_PREFIX "/dev/dvb/adapter"
+#define PT1_DEV_PREFIX "/dev/pt1video"
+#define PT1_DEV_PREFIX_T "video"
 #define DVB_DEV_PREFIX_LEN 16
+#define PT1_DEV_PREFIX_LEN 13
+#define PT1_DEV_PREFIX_LEN_H 7
+#define PT1_DEV_PREFIX_LEN_T 5
 
 struct configs* configs_create(int argc, char** argv)
 {
@@ -105,7 +110,7 @@ struct configs* configs_create(int argc, char** argv)
         fprintf(stderr, "UDP port: %d\n", conf->port_to);
         break;
       case 'd':
-        conf->adapter = util_find_adapter_num(optarg);
+        conf->adapter = util_find_adapter_num(optarg, (strncmp(argv[0], "recpt1", 6) == 0) );
 	if(conf->adapter < 0) {
           fprintf(stderr, "device not found: %s\n", optarg);
         }
@@ -307,7 +312,7 @@ struct channel_info configs_query_channel(struct configs* conf, int ch_num)
   return configs_query_channel_impl(conf, ch_num, -1);
 }
 
-int util_find_adapter_num(const char* device) {
+int util_find_adapter_num(const char* device, int chardev_remap) {
 
   size_t devlen = strlen(device);
   if( devlen == (DVB_DEV_PREFIX_LEN+1) && 
@@ -317,7 +322,15 @@ int util_find_adapter_num(const char* device) {
       return adapter_num;
     }
   }
-
+  else if( chardev_remap &&
+           devlen == (PT1_DEV_PREFIX_LEN+1) &&
+           (strncmp(device, PT1_DEV_PREFIX, PT1_DEV_PREFIX_LEN_H) == 0) &&
+            strncmp(device+(PT1_DEV_PREFIX_LEN_H+1), PT1_DEV_PREFIX_T, PT1_DEV_PREFIX_LEN_T) == 0) {
+    char adapter_num = (device[PT1_DEV_PREFIX_LEN] - '0');
+    if(0 <= adapter_num && adapter_num <= 9) {
+      return adapter_num;
+    }
+  }
   return -1;
 }
 
