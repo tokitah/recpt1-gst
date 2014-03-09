@@ -254,7 +254,9 @@ GstElement* recdvb_append_src(struct configs* conf, GstElement* pipeline, GstEle
       polarity = "v";
     }
     else {
-      if(conf->lnb_voltage == 0) {
+      if(conf->lnb_voltage == 0 &&
+           (950000000 < ch.frequency && ch.frequency < 2150000000)) // satelitte frequency. mayby QPSK.
+      {
         fprintf(stderr, "GStreamer(dvbsrc) does not support LNB-OFF.\n");
         fprintf(stderr, "LNB=0 treated as LNB=11.\n");
       }
