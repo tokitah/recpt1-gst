@@ -1,3 +1,7 @@
+recdvb 1.0.3
+============
+ * Correct ptX device mapping rule. (swap 1-2).
+
 recdvb 1.0.2
 ============
  * Map device argument PT[123] chardev device to DVB device on invoke as recpt1.

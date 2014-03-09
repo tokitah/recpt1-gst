@@ -1,5 +1,7 @@
 2014-03-09  TOKITA Hiroshi  <tokita.hiroshi@gmail.com>
 
+	* Suppress LNB voltage warning if not tuning to satellite broadcasting.
+	* Correct ptX device mapping rule. (swap 1-2).
 	* Fix a bug that to fail terminate by timer if duration was very short. Start timer at STREAM_START.
 	* Remap /dev/ptXvideo to dvb device if command invoke as recpt1.
 	* If the output file is '-',  write to standard output data.
