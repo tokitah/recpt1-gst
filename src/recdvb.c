@@ -12,12 +12,18 @@
 # include "config.h"
 #endif
 
+struct recdvb_context {
+  GMainLoop* loop;
+  struct configs* conf;
+  GstElement* pipeline;
+};
+
 void show_usage(char *cmd);
 void show_channels(struct configs* conf);
 void show_version();
 
-gboolean bus_call (GstBus     *bus, GstMessage *msg, gpointer    data);
-
+gboolean    redcvb_bus_msg_handler(GstBus *bus, GstMessage *msg, gpointer    data);
+gboolean    recdvb_clock_timer_elapsed(GstClock *clock, GstClockTime time, GstClockID id, gpointer user_data);
 GstElement* recdvb_append_src(struct configs* conf, GstElement* pipeline, GstElement* prev);
 GstElement* recdvb_append_b25unscramble(struct configs* conf, GstElement* pipeline, GstElement* prev);
 GstElement* recdvb_append_tsdemuxer(struct configs* conf, GstElement* pipeline, GstElement* prev);
@@ -26,17 +32,17 @@ GstElement* recdvb_append_queue(struct configs* conf, GstElement* pipeline, GstE
 GstElement* recdvb_append_queue2(struct configs* conf, GstElement* pipeline, GstElement* prev);
 GstElement* recdvb_append_udpsink(struct configs* conf, GstElement* pipeline, GstElement* prev);
 GstElement* recdvb_append_filesink(struct configs* conf, GstElement* pipeline, GstElement* prev);
-gboolean    recdvb_rectime_elapsed(GstClock *clock, GstClockTime time, GstClockID id, gpointer user_data);
 
 GST_DEBUG_CATEGORY_STATIC(gst_cat_recdvb);
 #define GST_CAT_DEFAULT gst_cat_recdvb
 
 int main(int argc, char *argv[])
 {
+  struct recdvb_context ctx = {NULL};
+
   GMainLoop *loop = NULL;
 
   GstBus *bus = NULL;
-  GstClock *clock =  NULL;
   GstElement *pipeline = NULL;
 //  GstElement *dvbsrc = NULL;
 //  GstElement *b25unscramble = NULL;
@@ -89,6 +95,10 @@ int main(int argc, char *argv[])
   /* Set up the pipeline */
   pipeline = gst_pipeline_new ("recdvb");
 
+  ctx.loop = loop;
+  ctx.conf= conf;
+  ctx.pipeline = pipeline;
+
   elem = recdvb_append_src(conf, pipeline, NULL);
   elem = recdvb_append_b25unscramble(conf, pipeline, elem);
   //elem = recdvb_append_tsdemuxer(conf, pipeline, elem);
@@ -101,20 +111,8 @@ int main(int argc, char *argv[])
   elem2 = recdvb_append_filesink(conf, pipeline, elem2);
 
   /* we add a message handler */
-  clock = gst_pipeline_get_clock(GST_PIPELINE(pipeline));
   bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
-  gst_bus_add_watch (bus, bus_call, loop);
-
-  GST_INFO("rectime=%lld", conf->rectime);
-  if(conf->rectime >= 0) {
-    GstClockTime endtime = gst_clock_get_time(clock) + (conf->rectime * GST_SECOND);
-    GstClockID clkid = gst_clock_new_single_shot_id(clock, endtime);
-
-    GST_DEBUG("clkid = %p, endtime=%llu", clkid, endtime);
-    if(!gst_clock_id_wait_async(clkid, recdvb_rectime_elapsed, loop, NULL) ) {
-      //err
-    }
-  }
+  gst_bus_add_watch (bus, redcvb_bus_msg_handler, &ctx);
 
   /* Set the pipeline to "playing" state*/
   //g_print ("Now playing: %s\n", argv[1]);
@@ -185,15 +183,31 @@ void show_version() {
   fprintf(stderr, "%s\n", VERSION);
 }
 
-gboolean bus_call (GstBus     *bus, GstMessage *msg, gpointer    data)
+gboolean redcvb_bus_msg_handler(GstBus *bus, GstMessage *msg, gpointer data)
 {
-  GMainLoop *loop = (GMainLoop *) data;
+  struct recdvb_context* ctx = (struct recdvb_context*)data;
+  struct configs* conf = ctx->conf;
+  GstElement* pipeline = ctx->pipeline;
 
   switch (GST_MESSAGE_TYPE (msg)) {
+    case GST_MESSAGE_STREAM_START:
+      GST_INFO("rectime=%lld", conf->rectime);
+      if(conf->rectime >= 0) {
+        GstClock *clock =  NULL;
+        clock = gst_pipeline_get_clock(GST_PIPELINE(pipeline));
+        GstClockTime endtime = gst_clock_get_time(clock) + (conf->rectime * GST_SECOND);
+        GstClockID clkid = gst_clock_new_single_shot_id(clock, endtime);
+
+        GST_DEBUG("clkid = %p, endtime=%llu", clkid, endtime);
+        if(!gst_clock_id_wait_async(clkid, recdvb_clock_timer_elapsed, ctx, NULL) ) {
+          //err
+        }
+      }
+      break;
 
     case GST_MESSAGE_EOS:
       GST_INFO("End of stream\n");
-      g_main_loop_quit (loop);
+      g_main_loop_quit (ctx->loop);
       break;
 
     case GST_MESSAGE_ERROR: {
@@ -206,13 +220,25 @@ gboolean bus_call (GstBus     *bus, GstMessage *msg, gpointer    data)
       g_printerr ("Error: %s\n", error->message);
       g_error_free (error);
 
-      g_main_loop_quit (loop);
+      g_main_loop_quit (ctx->loop);
       break;
     }
     default:
       break;
   }
 
+  return TRUE;
+}
+
+gboolean recdvb_clock_timer_elapsed(GstClock *clock, GstClockTime time, GstClockID id, gpointer user_data)
+{
+  struct recdvb_context* ctx = (struct recdvb_context*)user_data;
+  GST_DEBUG("callbacked %p %llu", id, time);
+
+  gst_element_set_state(ctx->pipeline, GST_STATE_PAUSED);
+  gst_element_set_state(ctx->pipeline, GST_STATE_READY);
+
+  g_main_loop_quit (ctx->loop);
   return TRUE;
 }
 
@@ -413,12 +439,4 @@ GstElement* recdvb_append_filesink(struct configs* conf, GstElement* pipeline, G
   GST_INFO_OBJECT(prev, "link from %p", prev);
   GST_INFO_OBJECT(filesink, "link to %p", filesink);
   return filesink;
-}
-
-gboolean recdvb_rectime_elapsed(GstClock *clock, GstClockTime time, GstClockID id, gpointer user_data)
-{
-  GMainLoop *loop = (GMainLoop*)user_data;
-  GST_DEBUG("callbacked %p %llu", id, time);
-  g_main_loop_quit (loop);
-  return TRUE;
 }
