@@ -1,7 +1,23 @@
-2014-03-02  TOKITA Hiroshi <tokita.hiroshi@gmail.com>
+2014-03-09  TOKITA Hiroshi  <tokita.hiroshi@gmail.com>
 
-	* Increment version package upload issue.
+	* Fix a bug that to fail terminate by timer if duration was very short. Start timer at STREAM_START.
+	* Remap /dev/ptXvideo to dvb device if command invoke as recpt1.
+	* If the output file is '-',  write to standard output data.
+	* Add debian build dependency.
 
-2014-03-01  TOKITA Hiroshi <tokita.hiroshi@gmail.com>
+2014-03-03  TOKITA Hiroshi  <tokita.hiroshi@gmail.com>
 
+	* Update generated files.
+	* update ChangeLog.
+
+2014-03-02  TOKITA Hiroshi  <tokita.hiroshi@gmail.com>
+
+	* Change to use AM_INIT_AUTOMAKE([foreign]) to ignore missing README at autoreconf. Use README.md.
+	* Change version number format to "X.Y.Z".
+	* Correcting conf-file comment sign.
 	* Initial version.
+	* Modify github's template repositoy.
+
+2014-03-02  tokitah  <tokita.hiroshi@gmail.com>
+
+	* Initial commit

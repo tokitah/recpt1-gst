@@ -17,6 +17,8 @@ a GStreamer plugin.
 
 Homepage:
 ===========================================================
+https://github.com/tokitah/recpt1-gst
+
 
 
 
