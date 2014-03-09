@@ -326,9 +326,27 @@ int util_find_adapter_num(const char* device, int chardev_remap) {
            devlen == (PT1_DEV_PREFIX_LEN+1) &&
            (strncmp(device, PT1_DEV_PREFIX, PT1_DEV_PREFIX_LEN_H) == 0) &&
             strncmp(device+(PT1_DEV_PREFIX_LEN_H+1), PT1_DEV_PREFIX_T, PT1_DEV_PREFIX_LEN_T) == 0) {
+    int mapped = -1;
     char adapter_num = (device[PT1_DEV_PREFIX_LEN] - '0');
-    if(0 <= adapter_num && adapter_num <= 9) {
-      return adapter_num;
+
+    // swap 1-2.
+    switch(adapter_num) {
+      case 0:
+        mapped = 0;
+        break;
+      case 1:
+        mapped = 2;
+        break;
+      case 2:
+        mapped = 1;
+        break;
+      case 3:
+        mapped = 3;
+        break;
+    }
+    if(mapped != -1) {
+      fprintf(stderr, "%s mapped to /dev/dvb/adapter%d\n", device, mapped);
+      return mapped;
     }
   }
   return -1;
