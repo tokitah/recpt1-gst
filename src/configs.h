@@ -24,7 +24,7 @@ enum mode {
 struct configs {
   GKeyFile* key_file; 
 //  char *device;
-  int adapter;
+  int adapter;// = -1;
   int use_b25;
    char* round;// = 4;
    char* strip;

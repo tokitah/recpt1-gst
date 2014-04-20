@@ -49,6 +49,7 @@ struct configs* configs_create(int argc, char** argv)
   struct configs* conf = g_malloc0(sizeof(struct configs) );
   // set defaults
   conf->port_to = 1234;
+  conf->adapter = -1;
 
   conf->key_file = g_key_file_new();
 
