@@ -185,30 +185,30 @@ struct configs* configs_create(int argc, char** argv)
   return conf;
 }
 
-char* configs_query_b25plugin_name(struct configs* conf)
+char* configs_query_plugin_name(struct configs* conf, const char* plugin)
 {
   GError* gerr = NULL;
-  char* value = g_key_file_get_string(conf->key_file, "general", "b25plugin", &gerr);
+  char* value = g_key_file_get_string(conf->key_file, "general", plugin, &gerr);
 
   return value;
 }
 
-gsize configs_query_b25plugin_options_length(struct configs* conf)
+gsize configs_query_plugin_options_length(struct configs* conf, const char* group)
 {
   GError* gerr = NULL;
   gsize grplength;
-  gchar** keys = g_key_file_get_keys(conf->key_file, "b25plugin", &grplength, &gerr);
+  gchar** keys = g_key_file_get_keys(conf->key_file, group, &grplength, &gerr);
 
   g_strfreev(keys);
 
   return grplength;
 }
 
-gboolean configs_query_b25plugin_option(struct configs* conf, int index, char** key, char** value)
+gboolean configs_query_plugin_option(struct configs* conf, int index, char** key, char** value, const char* group)
 {
   GError* gerr = NULL;
   gsize grplength;
-  gchar** keys = g_key_file_get_keys(conf->key_file, "b25plugin", &grplength, &gerr);
+  gchar** keys = g_key_file_get_keys(conf->key_file, group, &grplength, &gerr);
 
   if(!keys) {
     return FALSE;
@@ -219,13 +219,44 @@ gboolean configs_query_b25plugin_option(struct configs* conf, int index, char** 
     return FALSE;
   }
 
-  *value = g_key_file_get_string(conf->key_file, "b25plugin", keys[index], &gerr);
+  *value = g_key_file_get_string(conf->key_file, group, keys[index], &gerr);
   if(gerr && (gerr->code != G_KEY_FILE_ERROR_KEY_NOT_FOUND ||
               gerr->code != G_KEY_FILE_ERROR_GROUP_NOT_FOUND) ) {
     return FALSE;
   }
   *key = keys[index];
   return TRUE;
+}
+
+char* configs_query_b25plugin_name(struct configs* conf)
+{
+  return configs_query_plugin_name(conf, "b25");
+}
+
+gsize configs_query_b25plugin_options_length(struct configs* conf)
+{
+  return configs_query_plugin_options_length(conf, "b25");
+}
+
+gboolean configs_query_b25plugin_option(struct configs* conf, int index, char** key, char** value)
+{
+  return configs_query_plugin_option(conf, index, key, value, "b25");
+}
+
+
+char* configs_query_sidplugin_name(struct configs* conf)
+{
+  return configs_query_plugin_name(conf, "sid");
+}
+
+gsize configs_query_sidplugin_options_length(struct configs* conf)
+{
+  return configs_query_plugin_options_length(conf, "sid");
+}
+
+gboolean configs_query_sidplugin_option(struct configs* conf, int index, char** key, char** value)
+{
+  return configs_query_plugin_option(conf, index, key, value, "sid");
 }
 
 int configs_query_channels_num(struct configs* conf)

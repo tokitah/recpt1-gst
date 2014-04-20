@@ -25,8 +25,8 @@ void show_version();
 gboolean    redcvb_bus_msg_handler(GstBus *bus, GstMessage *msg, gpointer    data);
 gboolean    recdvb_clock_timer_elapsed(GstClock *clock, GstClockTime time, GstClockID id, gpointer user_data);
 GstElement* recdvb_append_src(struct configs* conf, GstElement* pipeline, GstElement* prev);
-GstElement* recdvb_append_b25unscramble(struct configs* conf, GstElement* pipeline, GstElement* prev);
-GstElement* recdvb_append_tsdemuxer(struct configs* conf, GstElement* pipeline, GstElement* prev);
+GstElement* recdvb_append_b25plugin(struct configs* conf, GstElement* pipeline, GstElement* prev);
+GstElement* recdvb_append_sidplugin(struct configs* conf, GstElement* pipeline, GstElement* prev);
 GstElement* recdvb_append_tee(struct configs* conf, GstElement* pipeline, GstElement* prev);
 GstElement* recdvb_append_queue(struct configs* conf, GstElement* pipeline, GstElement* prev);
 GstElement* recdvb_append_queue2(struct configs* conf, GstElement* pipeline, GstElement* prev);
@@ -44,10 +44,6 @@ int main(int argc, char *argv[])
 
   GstBus *bus = NULL;
   GstElement *pipeline = NULL;
-//  GstElement *dvbsrc = NULL;
-//  GstElement *b25unscramble = NULL;
-//  GstElement *filesink = NULL;
-//  GstElement *udpsink = NULL;
   GstElement* elem = NULL;
   GstElement* elem2 = NULL;
 
@@ -100,8 +96,8 @@ int main(int argc, char *argv[])
   ctx.pipeline = pipeline;
 
   elem = recdvb_append_src(conf, pipeline, NULL);
-  elem = recdvb_append_b25unscramble(conf, pipeline, elem);
-  //elem = recdvb_append_tsdemuxer(conf, pipeline, elem);
+  elem = recdvb_append_b25plugin(conf, pipeline, elem);
+  elem = recdvb_append_sidplugin(conf, pipeline, elem);
   elem = recdvb_append_tee(conf, pipeline, elem);
 
   elem2 = recdvb_append_queue(conf, pipeline, elem);
@@ -310,7 +306,7 @@ static gchar* strsubst(const char* body, const char* target, const char* replace
   return concat;
 }
 
-static gchar* subst_params(struct configs* conf, const char* value)
+static gchar* subst_b25_params(struct configs* conf, const char* value)
 {
   gchar* subst_round = strsubst(value,       "<round>", conf->round);
   gchar* subst_strip = strsubst(subst_round, "<strip>", conf->strip);
@@ -323,14 +319,20 @@ static gchar* subst_params(struct configs* conf, const char* value)
   return subst_emm;
 }
 
-GstElement* recdvb_append_b25unscramble(struct configs* conf, GstElement* pipeline, GstElement* prev)
+static gchar* subst_sid_params(struct configs* conf, const char* value)
+{
+  gchar* subst_sid = strsubst(value,       "<sid>", conf->sid_list);
+  return subst_sid;
+}
+
+GstElement* recdvb_append_b25plugin(struct configs* conf, GstElement* pipeline, GstElement* prev)
 {
   if(!conf->use_b25) {
     return prev;
   }
   char* b25_plugin_name = configs_query_b25plugin_name(conf);
   b25_plugin_name = (b25_plugin_name ? b25_plugin_name : "identity");
-  GstElement* b25unscramble = gst_element_factory_make (b25_plugin_name, b25_plugin_name);
+  GstElement* b25plugin = gst_element_factory_make (b25_plugin_name, b25_plugin_name);
 
   gsize optlen = configs_query_b25plugin_options_length(conf);
 
@@ -341,35 +343,56 @@ GstElement* recdvb_append_b25unscramble(struct configs* conf, GstElement* pipeli
     gchar *subst = NULL;
 
     configs_query_b25plugin_option(conf, i, &key, &value);
-    subst = subst_params(conf, value);
+    subst = subst_b25_params(conf, value);
 
     if(strlen(subst) != 0) {
-      GST_INFO_OBJECT(b25unscramble, "%s=%s", key, subst);
-      gst_util_set_object_arg (G_OBJECT (b25unscramble), key, subst);
+      GST_INFO_OBJECT(b25plugin, "%s=%s", key, subst);
+      gst_util_set_object_arg (G_OBJECT (b25plugin), key, subst);
     }
 
     g_free(subst);
   }
 
-  gst_bin_add(GST_BIN (pipeline), b25unscramble);
-  if(prev != NULL) gst_element_link(prev, b25unscramble);
+  gst_bin_add(GST_BIN (pipeline), b25plugin);
+  if(prev != NULL) gst_element_link(prev, b25plugin);
   GST_INFO_OBJECT(prev, "link from %p", prev);
-  GST_INFO_OBJECT(b25unscramble, "link to %p", b25unscramble);
-  return b25unscramble;
+  GST_INFO_OBJECT(b25plugin, "link to %p", b25plugin);
+  return b25plugin;
 }
 
-GstElement* recdvb_append_tsdemuxer(struct configs* conf, GstElement* pipeline, GstElement* prev)
+GstElement* recdvb_append_sidplugin(struct configs* conf, GstElement* pipeline, GstElement* prev)
 {
   if(!conf->sid_list) {
     return prev;
   }
-  GstElement *mpegtsdemux = gst_element_factory_make ("mpegts", "mpegtsdemux");
-  g_object_set (G_OBJECT (mpegtsdemux), "es-pids", conf->host_to, NULL);
-  gst_bin_add(GST_BIN (pipeline), mpegtsdemux);
-  if(prev != NULL) gst_element_link(prev, mpegtsdemux);
+  char* sidplugin_name = configs_query_sidplugin_name(conf);
+  sidplugin_name = (sidplugin_name ? sidplugin_name : "identity");
+  GstElement* sidplugin = gst_element_factory_make (sidplugin_name, sidplugin_name);
+
+  gsize optlen = configs_query_sidplugin_options_length(conf);
+
+  for(int i=0; i<optlen; i++) {
+    gchar *key = NULL;
+    gchar *value = NULL;
+    gchar *subst = NULL;
+
+    configs_query_sidplugin_option(conf, i, &key, &value);
+    subst = subst_sid_params(conf, value);
+
+    if(strlen(subst) != 0) {
+      GST_INFO_OBJECT(sidplugin, "%s=%s", key, subst);
+      gst_util_set_object_arg (G_OBJECT (sidplugin), key, subst);
+    }
+
+    g_free(subst);
+  }
+
+  //g_object_set (G_OBJECT (sidplugin), "es-pids", conf->host_to, NULL);
+  gst_bin_add(GST_BIN (pipeline), sidplugin);
+  if(prev != NULL) gst_element_link(prev, sidplugin);
   GST_INFO_OBJECT(prev, "link from %p", prev);
-  GST_INFO_OBJECT(mpegtsdemux, "link to %p", mpegtsdemux);
-  return mpegtsdemux;
+  GST_INFO_OBJECT(sidplugin, "link to %p", sidplugin);
+  return sidplugin;
 }
 
 GstElement* recdvb_append_tee(struct configs* conf, GstElement* pipeline, GstElement* prev)

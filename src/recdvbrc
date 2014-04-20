@@ -3,17 +3,26 @@
 # 
 # [general] section
 #
-# - b25plugin
-#   b25plugin name. Use gst-inspect to find plugin.
+# - b25
+#   b25 plugin name. Use gst-inspect to find plugin.
+#   Default is 'identity'. (nothing to do)
+# - sid
+#   TS splitter plugin name. Use gst-inspect to find plugin.
 #   Default is 'identity'. (nothing to do)
 
 [general]
-b25plugin = identity
-
-
-# [b25plugin] section
+# default
 #
-# Configure options for b25plugin (which configured in general section).
+b25 = identity
+sid = identity
+#
+# example.
+#b25 = arib-std-b25
+#sid = tssplitter_lite
+
+# [b25] section
+#
+# Configure options for b25 plugin (which configured in general section).
 #
 # - [keys...]
 # Every key in this section is used as b25plugin's property name,
@@ -22,11 +31,19 @@ b25plugin = identity
 # <round>, <strip> and <emm> are replace with
 # command line argument.
 
-[b25plugin]
+[b25]
 round = <round>
 strip = <strip>
 emm = <emm>
 
+
+# [sid] section
+#
+# Configure options for sid plugin (which configured in general section).
+# Currently, no options available.
+
+[sid]
+sid = <sid>
 
 # [ch] section
 #

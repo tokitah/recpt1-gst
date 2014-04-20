@@ -45,9 +45,17 @@ struct configs {
 
 struct configs* configs_create(int argc, char** argv);
 
+char*          configs_query_plugin_name(struct configs* conf, const char* plugin);
+gsize          configs_query_plugin_options_length(struct configs* conf, const char* group);
+gboolean       configs_query_plugin_option(struct configs* conf, int index, char** key, char** value, const char* group);
+
 char*          configs_query_b25plugin_name(struct configs* conf);
 gsize          configs_query_b25plugin_options_length(struct configs* conf);
 gboolean       configs_query_b25plugin_option(struct configs* conf, int index, char** key, char** value);
+
+char*          configs_query_sidplugin_name(struct configs* conf);
+gsize          configs_query_sidplugin_options_length(struct configs* conf);
+gboolean       configs_query_sidplugin_option(struct configs* conf, int index, char** key, char** value);
 
 int                 configs_query_channels_list(struct configs* conf, int* list);
 int                 configs_query_channels_num(struct configs* conf);
