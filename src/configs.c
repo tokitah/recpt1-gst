@@ -35,7 +35,6 @@ struct configs* configs_create(int argc, char** argv)
     { "udp",       0, NULL, 'u'},
     { "addr",      1, NULL, 'a'},
     { "port",      1, NULL, 'p'},
-    { "http",      1, NULL, 'H'},
     { "device",    1, NULL, 'd'},
     { "help",      0, NULL, 'h'},
     { "version",   0, NULL, 'v'},
@@ -61,7 +60,7 @@ struct configs* configs_create(int argc, char** argv)
     }
   }
 
-  while((result = getopt_long(argc, argv, "br:smua:p:d:hvl",
+  while((result = getopt_long(argc, argv, "br:smn:ua:p:d:hvli:I:",
                                 long_options, &option_index)) != -1) {
     switch(result) {
       case 'b':
