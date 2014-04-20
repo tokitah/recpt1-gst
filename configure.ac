@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([recdvb],[1.0.3],[tokita.hiroshi@gmail.com])
+AC_INIT([recdvb],[1.0.4],[tokita.hiroshi@gmail.com])
 AC_CONFIG_SRCDIR([config.h.in],[src/Makefile.am])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])

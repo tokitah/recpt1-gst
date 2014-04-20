@@ -1,7 +1,6 @@
 recdvb - Command line DVB recording tool.
+=========================================
 
-About:
-===========================================================
 recdvb is DVB recording tools built on GStreamer.
 It provide simple function for recording DVB stream.
 
@@ -15,11 +14,11 @@ To use some features that had recpt1, you will need to install
 a GStreamer plugin.
 
 
-Homepage:
-===========================================================
+Distribution site
+-----------------
 https://github.com/tokitah/recpt1-gst
 
 
-
-
+Author
+------
 TOKITA Hiroshi <tokita.hiroshi@gmail.com>

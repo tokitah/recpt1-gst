@@ -2,8 +2,8 @@ Source: recdvb
 Section: video
 Priority: extra
 Maintainer: TOKITA Hiroshi <tokita.hiroshi@gmail.com>
-Build-Depends: debhelper (>= 8.0.0), autotools-dev, docbook-xsl, docbook-xml, xsltproc, pkg-config, libgstreamer1.0-dev
-Standards-Version: 3.9.4
+Build-Depends: debhelper (>= 9.0.0), autotools-dev, docbook-xsl, docbook-xml, xsltproc, pkg-config, libgstreamer1.0-dev
+Standards-Version: 3.9.5
 Homepage: http://example.com
 #Vcs-Git: git://git.debian.org/collab-maint/recdvb.git
 #Vcs-Browser: http://git.debian.org/?p=collab-maint/recdvb.git;a=summary
