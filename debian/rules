@@ -9,5 +9,9 @@
 # Uncomment this to turn on verbose mode.
 export DH_VERBOSE=1
 
+export LDFLAGS=$(shell dpkg-buildflags --get LDFLAGS)
+export CFLAGS=$(shell dpkg-buildflags --get CFLAGS)
+export CPPFLAGS=$(shell dpkg-buildflags --get CPPFLAGS)
+
 %:
 	dh $@  --with autotools-dev
