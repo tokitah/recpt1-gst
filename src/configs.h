@@ -62,7 +62,7 @@ int                 configs_query_channels_num(struct configs* conf);
 struct channel_info configs_query_channel(struct configs* conf, int ch_num);
 struct channel_info configs_query_channel_by_index(struct configs* conf, int index);
 
-int util_find_adapter_num(const char* device, int chardev_remap);
+int config_query_mapped_device(struct configs* conf, const char* device);
 
 #ifdef __cplusplus
 }

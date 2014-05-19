@@ -45,6 +45,23 @@ emm = <emm>
 [sid]
 sid = <sid>
 
+
+# [device-alias] section
+#
+# Define alias name to /dev/dvb/adapterX.
+# The left hand side is alias name, right hand side is adapter number.
+
+[device-alias]
+/dev/pt1video0 = 0
+/dev/pt1video1 = 2
+/dev/pt1video2 = 1
+/dev/pt1video3 = 3
+/dev/pt3video0 = 0
+/dev/pt3video1 = 1
+/dev/pt3video2 = 2
+/dev/pt3video3 = 3
+
+
 # [ch] section
 #
 # Channel definition.

@@ -10,13 +10,11 @@
 
 #define SYSCONFFILE SYSCONFDIR "/" CONFFILENAME
 
-#define DVB_DEV_PREFIX "/dev/dvb/adapter"
-#define PT1_DEV_PREFIX "/dev/pt1video"
-#define PT1_DEV_PREFIX_T "video"
-#define DVB_DEV_PREFIX_LEN 16
-#define PT1_DEV_PREFIX_LEN 13
-#define PT1_DEV_PREFIX_LEN_H 7
-#define PT1_DEV_PREFIX_LEN_T 5
+#if 0
+#define DEBUGPRINT(...) fprintf(stderr, __VA_ARGS__)
+#else
+#define DEBUGPRINT(...)
+#endif
 
 struct configs* configs_create(int argc, char** argv)
 {
@@ -110,7 +108,17 @@ struct configs* configs_create(int argc, char** argv)
         fprintf(stderr, "UDP port: %d\n", conf->port_to);
         break;
       case 'd':
-        conf->adapter = util_find_adapter_num(optarg, (strncmp(argv[0], "recpt1", 6) == 0) );
+        if( strncmp(optarg, "/dev/dvb/adapter", 16) == 0) {
+          conf->adapter = atoi(optarg+16);
+        }
+        else {
+          conf->adapter = config_query_mapped_device(conf, optarg);
+          if(conf->adapter >= 0) {
+            fprintf(stderr, "device %s map to /dev/dvb/adapter%d\n",
+                            optarg, conf->adapter);
+          }
+        }
+
 	if(conf->adapter < 0) {
           fprintf(stderr, "device not found: %s\n", optarg);
         }
@@ -343,43 +351,14 @@ struct channel_info configs_query_channel(struct configs* conf, int ch_num)
   return configs_query_channel_impl(conf, ch_num, -1);
 }
 
-int util_find_adapter_num(const char* device, int chardev_remap) {
-
-  size_t devlen = strlen(device);
-  if( devlen == (DVB_DEV_PREFIX_LEN+1) && 
-      strncmp(device, DVB_DEV_PREFIX, DVB_DEV_PREFIX_LEN) == 0) {
-    char adapter_num = (device[DVB_DEV_PREFIX_LEN] - '0');
-    if(0 <= adapter_num && adapter_num <= 9) {
-      return adapter_num;
-    }
+int config_query_mapped_device(struct configs* conf, const char* device)
+{
+  GError* gerr = NULL;
+  int mapped = g_key_file_get_integer(conf->key_file, "device-alias", device, &gerr);
+  if(gerr) {
+    fprintf(stderr, "err %s: %d.\n", gerr->message, gerr->code);
+    return -1;
   }
-  else if( chardev_remap &&
-           devlen == (PT1_DEV_PREFIX_LEN+1) &&
-           (strncmp(device, PT1_DEV_PREFIX, PT1_DEV_PREFIX_LEN_H) == 0) &&
-            strncmp(device+(PT1_DEV_PREFIX_LEN_H+1), PT1_DEV_PREFIX_T, PT1_DEV_PREFIX_LEN_T) == 0) {
-    int mapped = -1;
-    char adapter_num = (device[PT1_DEV_PREFIX_LEN] - '0');
 
-    // swap 1-2.
-    switch(adapter_num) {
-      case 0:
-        mapped = 0;
-        break;
-      case 1:
-        mapped = 2;
-        break;
-      case 2:
-        mapped = 1;
-        break;
-      case 3:
-        mapped = 3;
-        break;
-    }
-    if(mapped != -1) {
-      fprintf(stderr, "%s mapped to /dev/dvb/adapter%d\n", device, mapped);
-      return mapped;
-    }
-  }
-  return -1;
+  return mapped;
 }
-
