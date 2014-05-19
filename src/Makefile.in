@@ -353,8 +353,8 @@ recdvb_SOURCES = recdvb.c configs.c
 
 # our CFLAGS and LDFLAGS used for compiling and linking
 # make sure you prefix these with the name of your binary
-recdvb_CFLAGS = $(GST_CFLAGS) --std=c11 -Wall -DSYSCONFDIR=\"@sysconfdir@\" -DCONFFILENAME=\"recdvbrc\"
-recdvb_LDFLAGS = $(GST_LIBS)
+recdvb_CFLAGS = $(CFLAGS) $(GST_CFLAGS) --std=c11 -Wall -DSYSCONFDIR=\"@sysconfdir@\" -DCONFFILENAME=\"recdvbrc\"
+recdvb_LDFLAGS = $(LDFLAGS) $(GST_LIBS)
 man1_MANS = recdvb.1
 sysconf_DATA = recdvbrc
 all: all-am

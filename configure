@@ -3009,6 +3009,7 @@ END
   fi
 fi
 
+
 # enable mainainer mode by default
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable maintainer-specific portions of Makefiles" >&5
