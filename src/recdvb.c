@@ -29,7 +29,6 @@ GstElement* recdvb_append_b25plugin(struct configs* conf, GstElement* pipeline, 
 GstElement* recdvb_append_sidplugin(struct configs* conf, GstElement* pipeline, GstElement* prev);
 GstElement* recdvb_append_tee(struct configs* conf, GstElement* pipeline, GstElement* prev);
 GstElement* recdvb_append_queue(struct configs* conf, GstElement* pipeline, GstElement* prev);
-GstElement* recdvb_append_queue2(struct configs* conf, GstElement* pipeline, GstElement* prev);
 GstElement* recdvb_append_udpsink(struct configs* conf, GstElement* pipeline, GstElement* prev);
 GstElement* recdvb_append_filesink(struct configs* conf, GstElement* pipeline, GstElement* prev);
 
@@ -103,7 +102,7 @@ int main(int argc, char *argv[])
   elem2 = recdvb_append_queue(conf, pipeline, elem);
   elem2 = recdvb_append_udpsink(conf, pipeline, elem2);
 
-  elem2 = recdvb_append_queue2(conf, pipeline, elem);
+  elem2 = recdvb_append_queue(conf, pipeline, elem);
   elem2 = recdvb_append_filesink(conf, pipeline, elem2);
 
   /* we add a message handler */
@@ -244,7 +243,7 @@ GstElement* recdvb_append_src(struct configs* conf, GstElement* pipeline, GstEle
   if(conf->adapter >= 0) {
     const char* polarity = "h";
     struct channel_info ch = configs_query_channel(conf, conf->channel);
-    dvbsrc   = gst_element_factory_make ("dvbsrc",  "dvbsrc");
+    dvbsrc   = gst_element_factory_make("dvbsrc", NULL);
 
     if(conf->lnb_voltage > 15) {
       polarity = "v";
@@ -270,12 +269,12 @@ GstElement* recdvb_append_src(struct configs* conf, GstElement* pipeline, GstEle
   }
   else if(conf->input != NULL) {
     if( strncmp(conf->input, "-", 1) == 0) {
-      dvbsrc   = gst_element_factory_make ("fdsrc",  "fdsrc");
+      dvbsrc   = gst_element_factory_make("fdsrc", NULL);
       g_object_set (G_OBJECT (dvbsrc), "fd", 0, NULL); //from stdin
       GST_DEBUG_OBJECT(dvbsrc, "fd=0");
     }
     else {
-      dvbsrc   = gst_element_factory_make ("filesrc",  "filesrc");
+      dvbsrc   = gst_element_factory_make("filesrc", NULL);
       g_object_set (G_OBJECT (dvbsrc), "location", conf->input, NULL);
       GST_DEBUG_OBJECT(dvbsrc, "location=%s", conf->input);
     }
@@ -332,7 +331,7 @@ GstElement* recdvb_append_b25plugin(struct configs* conf, GstElement* pipeline, 
   }
   char* b25_plugin_name = configs_query_b25plugin_name(conf);
   b25_plugin_name = (b25_plugin_name ? b25_plugin_name : "identity");
-  GstElement* b25plugin = gst_element_factory_make (b25_plugin_name, b25_plugin_name);
+  GstElement* b25plugin = gst_element_factory_make(b25_plugin_name, NULL);
 
   gsize optlen = configs_query_b25plugin_options_length(conf);
 
@@ -367,7 +366,7 @@ GstElement* recdvb_append_sidplugin(struct configs* conf, GstElement* pipeline, 
   }
   char* sidplugin_name = configs_query_sidplugin_name(conf);
   sidplugin_name = (sidplugin_name ? sidplugin_name : "identity");
-  GstElement* sidplugin = gst_element_factory_make (sidplugin_name, sidplugin_name);
+  GstElement* sidplugin = gst_element_factory_make(sidplugin_name, NULL);
 
   gsize optlen = configs_query_sidplugin_options_length(conf);
 
@@ -397,7 +396,7 @@ GstElement* recdvb_append_sidplugin(struct configs* conf, GstElement* pipeline, 
 
 GstElement* recdvb_append_tee(struct configs* conf, GstElement* pipeline, GstElement* prev)
 {
-  GstElement *tee = gst_element_factory_make ("tee", "tee");
+  GstElement *tee = gst_element_factory_make("tee", NULL);
   gst_bin_add(GST_BIN (pipeline), tee);
   if(prev != NULL) gst_element_link(prev, tee);
   GST_INFO_OBJECT(prev, "link from %p", prev);
@@ -407,17 +406,7 @@ GstElement* recdvb_append_tee(struct configs* conf, GstElement* pipeline, GstEle
 
 GstElement* recdvb_append_queue(struct configs* conf, GstElement* pipeline, GstElement* prev)
 {
-  GstElement *queue = gst_element_factory_make ("queue", "queue");
-  gst_bin_add(GST_BIN (pipeline), queue);
-  if(prev != NULL) gst_element_link(prev, queue);
-  GST_INFO_OBJECT(prev, "link from %p", prev);
-  GST_INFO_OBJECT(queue, "link to %p", queue);
-  return queue;
-}
-
-GstElement* recdvb_append_queue2(struct configs* conf, GstElement* pipeline, GstElement* prev)
-{
-  GstElement *queue = gst_element_factory_make ("queue", "queue2");
+  GstElement *queue = gst_element_factory_make("queue", NULL);
   gst_bin_add(GST_BIN (pipeline), queue);
   if(prev != NULL) gst_element_link(prev, queue);
   GST_INFO_OBJECT(prev, "link from %p", prev);
@@ -430,7 +419,7 @@ GstElement* recdvb_append_udpsink(struct configs* conf, GstElement* pipeline, Gs
   if(!conf->use_udp) {
     return prev;
   }
-  GstElement *udpsink = gst_element_factory_make ("udpsink", "udpsink");
+  GstElement *udpsink = gst_element_factory_make("udpsink", NULL);
   g_object_set (G_OBJECT (udpsink), "host", conf->host_to, NULL);
   g_object_set (G_OBJECT (udpsink), "port", conf->port_to, NULL);
   GST_DEBUG_OBJECT(udpsink, "host=%s", conf->host_to);
@@ -449,12 +438,12 @@ GstElement* recdvb_append_filesink(struct configs* conf, GstElement* pipeline, G
     return prev;
   }
   else if( strncmp(conf->destfile, "-", 1) == 0) {
-    filesink = gst_element_factory_make ("fdsink",  "fdsink");
+    filesink = gst_element_factory_make("fdsink", NULL);
     g_object_set (G_OBJECT (filesink), "fd", 1, NULL); //to stdout
     GST_DEBUG_OBJECT(filesink, "fd=1");
   }
   else {
-    filesink = gst_element_factory_make ("filesink",  "filesink");
+    filesink = gst_element_factory_make("filesink", NULL);
     g_object_set (G_OBJECT (filesink), "location", conf->destfile, NULL);
     GST_DEBUG_OBJECT(filesink, "location=%s", conf->destfile);
   }
