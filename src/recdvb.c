@@ -114,16 +114,16 @@ int main(int argc, char *argv[])
   gst_element_set_state (pipeline, GST_STATE_PLAYING);
 
   /* Iterate */
-  g_print ("Running...\n");
+  g_printerr("Running...\n");
   g_main_loop_run (loop);
 
 // --- EXIT MAINLOOP ---
 
   /* Out of the main loop, clean up nicely */
-  g_print ("Returned, stopping playback\n");
+  g_printerr("Returned, stopping playback\n");
   gst_element_set_state (pipeline, GST_STATE_NULL);
 
-  g_print ("Deleting pipeline\n");
+  g_printerr("Deleting pipeline\n");
   gst_object_unref (GST_OBJECT (pipeline));
 
   return 0;
@@ -212,7 +212,7 @@ gboolean redcvb_bus_msg_handler(GstBus *bus, GstMessage *msg, gpointer data)
       gst_message_parse_error (msg, &error, &debug);
       g_free (debug);
 
-      g_printerr ("Error: %s\n", error->message);
+      g_printerr("Error: %s\n", error->message);
       g_error_free (error);
 
       g_main_loop_quit (ctx->loop);
